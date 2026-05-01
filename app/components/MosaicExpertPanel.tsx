@@ -4,13 +4,23 @@ import { useChat } from '@ai-sdk/react';
 
 export const MosaicExpertPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+  
+  // ДОБАВЛЕНО: Извлекаем append и setInput для ручного управления отправкой
+  const { messages, input, setInput, handleInputChange, isLoading, append } = useChat();
 
-  // Создаем обертку для отправки, чтобы панель не закрывалась
-  const handleChatSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Это критически важно: предотвращает перезагрузку страницы
-    if (!input.trim()) return;
-    handleSubmit(e); // Вызываем стандартный метод из useChat
+  // 100% надежный обработчик, который не зависит от HTML-форм
+  const handleManualSubmit = (e?: React.SyntheticEvent) => {
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    // Принудительно отправляем сообщение
+    append({
+      role: 'user',
+      content: input,
+    });
+
+    // Очищаем поле
+    setInput('');
   };
 
   return (
@@ -31,7 +41,7 @@ export const MosaicExpertPanel = () => {
       {/* 2. Боковая панель */}
       <div 
         className={`fixed top-0 right-0 h-full z-[10000] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] transition-all duration-500 ease-in-out ${isOpen ? 'w-[400px]' : 'w-0 overflow-hidden'}`}
-        style={{ visibility: isOpen ? 'visible' : 'hidden' }} // Дополнительная страховка от "призрачных" кликов
+        style={{ visibility: isOpen ? 'visible' : 'hidden' }}
       >
         
         {/* Шапка панели */}
@@ -102,22 +112,21 @@ export const MosaicExpertPanel = () => {
                   <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
-                Мастер подбирает варианты...
+                Мастер изучает каталог...
               </div>
             )}
           </div>
 
-          {/* Поле ввода */}
-          {/* ОБРАТИТЕ ВНИМАНИЕ: здесь теперь handleChatSubmit */}
-          <form onSubmit={handleChatSubmit} className="p-4 border-t border-gray-100 bg-white">
+          {/* ИЗМЕНЕНО: Больше нет тега <form>. Используем <div> */}
+          <div className="p-4 border-t border-gray-100 bg-white">
             <div className="relative">
               <input
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
-                    // Предотвращаем закрытие при нажатии Enter
-                    e.stopPropagation();
+                    e.preventDefault(); // Блокируем стандартный Enter
+                    handleManualSubmit(); // Вызываем нашу функцию
                   }
                 }}
                 placeholder="Задайте вопрос мастеру..."
@@ -125,14 +134,15 @@ export const MosaicExpertPanel = () => {
                 style={{ color: '#1a1a1a' }}
               />
               <button 
-                type="submit" 
+                onClick={handleManualSubmit}
+                type="button" // КРИТИЧЕСКИ ВАЖНО: Это больше не кнопка 'submit'
                 disabled={!input.trim() || isLoading}
                 className="absolute right-2 top-1.5 p-2 text-[#cc0000] hover:bg-red-50 disabled:opacity-30 rounded-lg transition"
               >
                 <ChevronRight size={20} />
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </>
