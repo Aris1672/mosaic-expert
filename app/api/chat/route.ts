@@ -23,15 +23,15 @@ export async function POST(req: Request) {
       Ваша задача: помогать с выбором, расчетом количества и техническими вопросами укладки.
     `,
     messages,
-    tools: {
+   tools: {
       fetch_catalog: tool({
         description: 'Получить список товаров из каталога для рекомендации',
         parameters: z.object({}),
-        // Добавляем пустые скобки параметров {}, чтобы TypeScript был доволен
-        execute: async ({}) => { 
+        execute: async () => { // Убираем аргументы здесь
           const res = await fetch('https://pixmosaic-proxy.vercel.app/api/catalog');
           if (!res.ok) throw new Error('Ошибка загрузки каталога');
-          return await res.json();
+          const data = await res.json();
+          return data;
         },
       }),
     },
