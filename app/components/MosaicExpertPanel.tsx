@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { MessageSquare, X, ChevronRight, Calculator, Info, Phone } from 'lucide-react';
+import { MessageSquare, X, ChevronRight, Calculator, Info } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 
 export const MosaicExpertPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
 
   return (
     <>
@@ -29,7 +29,7 @@ export const MosaicExpertPanel = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <h3 className="font-['Oswald'] uppercase tracking-wider text-sm">ИИ-Эксперт по мозаике</h3>
+              <h3 className="font-['Oswald'] uppercase tracking-wider text-sm text-white">ИИ-Эксперт по мозаике</h3>
             </div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest">Мастер-консультант Новой Мозаики</p>
           </div>
@@ -40,46 +40,61 @@ export const MosaicExpertPanel = () => {
 
         {/* 3. Дашборд мастера (Результаты расчетов) */}
         <div className="bg-gray-50 p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2 text-[#cc0000] mb-3">
+          <div className="flex items-center gap-2 text-[#cc0000] mb-3 font-bold">
             <Calculator size={16} />
-            <span className="text-xs font-bold uppercase tracking-tighter">Текущий расчет проекта</span>
+            <span className="text-xs uppercase tracking-tighter">Текущий расчет проекта</span>
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px]">
             <div className="bg-white p-2 rounded border border-gray-100">
-              <p className="text-gray-400 mb-1 uppercase">Площадь (с запасом)</p>
-              <p className="font-bold text-sm">-- м²</p>
+              <p className="text-gray-500 mb-1 uppercase">Площадь (с запасом)</p>
+              <p className="font-bold text-sm text-black">-- м²</p>
             </div>
             <div className="bg-white p-2 rounded border border-gray-100">
-              <p className="text-gray-400 mb-1 uppercase">Кол-во сеток</p>
-              <p className="font-bold text-sm">-- шт.</p>
+              <p className="text-gray-500 mb-1 uppercase">Кол-во сеток</p>
+              <p className="font-bold text-sm text-black">-- шт.</p>
             </div>
           </div>
         </div>
 
         {/* Окно чата */}
-        <div className="flex flex-col h-[calc(100%-220px)]">
+        <div className="flex flex-col h-[calc(100%-220px)] bg-white">
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
             {messages.length === 0 && (
-              <div className="text-center py-10 opacity-50">
-                <Info size={32} className="mx-auto mb-2 text-gray-300" />
-                <p className="text-sm">Здравствуйте! Я помогу вам подобрать мозаику и рассчитать её количество. С чего начнем?</p>
+              <div className="text-center py-10 opacity-70">
+                <Info size={32} className="mx-auto mb-2 text-gray-400" />
+                <p className="text-sm text-gray-600">Здравствуйте! Я помогу вам подобрать мозаику и рассчитать её количество. С чего начнем?</p>
               </div>
             )}
+            
             {messages.map(m => (
-  <div 
-    key={m.id} 
-    className={`p-4 mb-4 rounded-lg ${
-      m.role === 'user' 
-        ? 'bg-red-50 text-red-900 ml-4' // Сообщение пользователя
-        : 'bg-white text-slate-800 border border-gray-200 mr-4' // Ответ ИИ
-    }`}
-  >
-    <span className="font-bold block mb-1">
-      {m.role === 'user' ? 'Вы:' : 'Эксперт:'}
-    </span>
-    {m.content}
-  </div>
-))}
+              <div 
+                key={m.id} 
+                className={`p-4 rounded-xl shadow-sm ${
+                  m.role === 'user' 
+                    ? 'bg-red-600 text-white ml-6' 
+                    : 'bg-gray-100 text-gray-900 border border-gray-200 mr-6'
+                }`}
+                style={{ color: m.role === 'user' ? '#ffffff' : '#1a1a1a' }} // Прямое указание цвета
+              >
+                <span className="font-bold block text-[10px] uppercase tracking-widest mb-1 opacity-70">
+                  {m.role === 'user' ? 'Вы' : 'Эксперт'}
+                </span>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="flex items-center gap-2 text-gray-400 text-xs pl-2">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                </div>
+                Эксперт изучает каталог...
+              </div>
+            )}
           </div>
 
           {/* Поле ввода */}
@@ -89,9 +104,14 @@ export const MosaicExpertPanel = () => {
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Задайте вопрос мастеру..."
-                className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#cc0000]/20 focus:border-[#cc0000] transition-all text-sm"
+                className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#cc0000]/20 focus:border-[#cc0000] transition-all text-sm text-gray-900"
+                style={{ color: '#1a1a1a' }} // Цвет текста в поле ввода
               />
-              <button type="submit" className="absolute right-2 top-1.5 p-2 text-[#cc0000] hover:bg-red-50 rounded-lg transition">
+              <button 
+                type="submit" 
+                disabled={!input.trim() || isLoading}
+                className="absolute right-2 top-1.5 p-2 text-[#cc0000] hover:bg-red-50 disabled:opacity-30 rounded-lg transition"
+              >
                 <ChevronRight size={20} />
               </button>
             </div>
