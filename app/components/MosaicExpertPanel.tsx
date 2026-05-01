@@ -66,12 +66,20 @@ export const MosaicExpertPanel = () => {
               </div>
             )}
             {messages.map(m => (
-              <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user' ? 'bg-[#cc0000] text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none border border-gray-200'}`}>
-                  {m.content}
-                </div>
-              </div>
-            ))}
+  <div 
+    key={m.id} 
+    className={`p-4 mb-4 rounded-lg ${
+      m.role === 'user' 
+        ? 'bg-red-50 text-red-900 ml-4' // Сообщение пользователя
+        : 'bg-white text-slate-800 border border-gray-200 mr-4' // Ответ ИИ
+    }`}
+  >
+    <span className="font-bold block mb-1">
+      {m.role === 'user' ? 'Вы:' : 'Эксперт:'}
+    </span>
+    {m.content}
+  </div>
+))}
           </div>
 
           {/* Поле ввода */}
