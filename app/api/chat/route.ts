@@ -24,12 +24,13 @@ export async function POST(req: Request) {
     `,
     messages,
     tools: {
-      // Инструмент для получения данных из вашего текущего каталога
       fetch_catalog: tool({
         description: 'Получить список товаров из каталога для рекомендации',
         parameters: z.object({}),
-        execute: async () => {
+        // Добавляем пустые скобки параметров {}, чтобы TypeScript был доволен
+        execute: async ({}) => { 
           const res = await fetch('https://pixmosaic-proxy.vercel.app/api/catalog');
+          if (!res.ok) throw new Error('Ошибка загрузки каталога');
           return await res.json();
         },
       }),
