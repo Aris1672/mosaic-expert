@@ -6,13 +6,20 @@ export const MosaicExpertPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
 
+  // Создаем обертку для отправки, чтобы панель не закрывалась
+  const handleChatSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Это критически важно: предотвращает перезагрузку страницы
+    if (!input.trim()) return;
+    handleSubmit(e); // Вызываем стандартный метод из useChat
+  };
+
   return (
     <>
-      {/* 1. Кнопка-триггер (Floating Button) */}
+      {/* 1. Кнопка-триггер */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 bg-[#cc0000] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group"
+          className="fixed bottom-6 right-6 z-[9999] bg-[#cc0000] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group"
         >
           <MessageSquare size={24} />
           <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-medium">
@@ -21,8 +28,11 @@ export const MosaicExpertPanel = () => {
         </button>
       )}
 
-      {/* 2. Боковая панель (Side-Panel) */}
-      <div className={`fixed top-0 right-0 h-full z-[10000] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] transition-all duration-500 ease-in-out ${isOpen ? 'w-[400px]' : 'w-0 overflow-hidden'}`}>
+      {/* 2. Боковая панель */}
+      <div 
+        className={`fixed top-0 right-0 h-full z-[10000] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] transition-all duration-500 ease-in-out ${isOpen ? 'w-[400px]' : 'w-0 overflow-hidden'}`}
+        style={{ visibility: isOpen ? 'visible' : 'hidden' }} // Дополнительная страховка от "призрачных" кликов
+      >
         
         {/* Шапка панели */}
         <div className="bg-[#1a1a1a] p-5 text-white flex justify-between items-center">
@@ -38,7 +48,7 @@ export const MosaicExpertPanel = () => {
           </button>
         </div>
 
-        {/* 3. Дашборд мастера (Результаты расчетов) */}
+        {/* 3. Дашборд мастера */}
         <div className="bg-gray-50 p-4 border-b border-gray-200">
           <div className="flex items-center gap-2 text-[#cc0000] mb-3 font-bold">
             <Calculator size={16} />
@@ -62,7 +72,7 @@ export const MosaicExpertPanel = () => {
             {messages.length === 0 && (
               <div className="text-center py-10 opacity-70">
                 <Info size={32} className="mx-auto mb-2 text-gray-400" />
-                <p className="text-sm text-gray-600">Здравствуйте! Я помогу вам подобрать мозаику и рассчитать её количество. С чего начнем?</p>
+                <p className="text-sm text-gray-600">Я помогу вам подобрать мозаику. С чего начнем?</p>
               </div>
             )}
             
@@ -74,7 +84,7 @@ export const MosaicExpertPanel = () => {
                     ? 'bg-red-600 text-white ml-6' 
                     : 'bg-gray-100 text-gray-900 border border-gray-200 mr-6'
                 }`}
-                style={{ color: m.role === 'user' ? '#ffffff' : '#1a1a1a' }} // Прямое указание цвета
+                style={{ color: m.role === 'user' ? '#ffffff' : '#1a1a1a' }}
               >
                 <span className="font-bold block text-[10px] uppercase tracking-widest mb-1 opacity-70">
                   {m.role === 'user' ? 'Вы' : 'Эксперт'}
@@ -92,20 +102,27 @@ export const MosaicExpertPanel = () => {
                   <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
                   <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
-                Эксперт изучает каталог...
+                Мастер подбирает варианты...
               </div>
             )}
           </div>
 
           {/* Поле ввода */}
-          <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100 bg-white">
+          {/* ОБРАТИТЕ ВНИМАНИЕ: здесь теперь handleChatSubmit */}
+          <form onSubmit={handleChatSubmit} className="p-4 border-t border-gray-100 bg-white">
             <div className="relative">
               <input
                 value={input}
                 onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    // Предотвращаем закрытие при нажатии Enter
+                    e.stopPropagation();
+                  }
+                }}
                 placeholder="Задайте вопрос мастеру..."
                 className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#cc0000]/20 focus:border-[#cc0000] transition-all text-sm text-gray-900"
-                style={{ color: '#1a1a1a' }} // Цвет текста в поле ввода
+                style={{ color: '#1a1a1a' }}
               />
               <button 
                 type="submit" 
