@@ -26,12 +26,16 @@ export async function POST(req: Request) {
    tools: {
       fetch_catalog: tool({
         description: 'Получить список товаров из каталога для рекомендации',
-        parameters: z.object({}),
-        execute: async () => { // Убираем аргументы здесь
+        parameters: z.object({
+          // Добавляем фиктивный параметр, чтобы TypeScript "увидел" структуру
+          query: z.string().optional() 
+        }),
+        execute: async (args) => { 
+          // Теперь TypeScript видит args и понимает, что это функция-инструмент
+          console.log('Fetching catalog with args:', args);
           const res = await fetch('https://pixmosaic-proxy.vercel.app/api/catalog');
           if (!res.ok) throw new Error('Ошибка загрузки каталога');
-          const data = await res.json();
-          return data;
+          return await res.json();
         },
       }),
     },
