@@ -27,3 +27,17 @@ body {
 .ai-chat-container {
   color: #1e293b !important; /* Принудительный темно-серый цвет */
 }
+/* Принудительно скрываем прелоадер, если он застрял */
+#preloader, 
+.preloader {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Убеждаемся, что контент виден */
+body {
+  overflow: visible !important;
+  opacity: 1 !important;
+}
