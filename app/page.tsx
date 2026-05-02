@@ -1,5 +1,13 @@
 'use client';
-import { MosaicExpertPanel } from './components/MosaicExpertPanel';
+
+import dynamic from 'next/dynamic';
+
+// Используем динамический импорт для чата. 
+// { ssr: false } — это «магическая таблетка», которая лечит зависание прелоадера
+const MosaicExpertPanel = dynamic(
+  () => import('./components/MosaicExpertPanel').then((mod) => mod.MosaicExpertPanel),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
@@ -19,7 +27,7 @@ export default function Home() {
         Контент вашего лендинга...
       </div>
 
-      {/* Наш ИИ-Эксперт, который появится в углу */}
+      {/* Наш ИИ-Эксперт загрузится только на стороне клиента */}
       <MosaicExpertPanel />
     </main>
   );
