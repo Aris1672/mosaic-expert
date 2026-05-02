@@ -2,14 +2,15 @@ import { google } from '@ai-sdk/google';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 
-// Это позволит Gemini работать дольше на Vercel (важно для сложных ответов)
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const result = await streamText({
+  const result = streamText({ // Убрали await здесь
     model: google('gemini-1.5-flash'),
+    // ВАЖНО: позволяем модели сделать до 5 шагов (вызвать инструмент + ответить текстом)
+    maxSteps: 5, 
     system: `
       Вы — ИИ-Эксперт по рекомендации мозаики в компании «Новая Мозаика» (newmosaic.ru). 
       Ваш опыт — 15 лет. 
@@ -23,19 +24,22 @@ export async function POST(req: Request) {
       Ваша задача: помогать с выбором, расчетом количества и техническими вопросами укладки.
     `,
     messages,
-   tools: {
+    tools: {
       fetch_catalog: tool({
         description: 'Получить список товаров из каталога для рекомендации',
         parameters: z.object({
-          // Добавляем фиктивный параметр, чтобы TypeScript "увидел" структуру
           query: z.string().optional() 
         }),
         execute: async (args) => { 
-          // Теперь TypeScript видит args и понимает, что это функция-инструмент
           console.log('Fetching catalog with args:', args);
-          const res = await fetch('https://pixmosaic-proxy.vercel.app/api/catalog');
-          if (!res.ok) throw new Error('Ошибка загрузки каталога');
-          return await res.json();
+          try {
+            const res = await fetch('https://pixmosaic-proxy.vercel.app/api/catalog');
+            if (!res.ok) throw new Error('Ошибка загрузки каталога');
+            return await res.json();
+          } catch (error) {
+            console.error('Tool Error:', error);
+            return { error: 'Не удалось загрузить каталог' };
+          }
         },
       }),
     },
