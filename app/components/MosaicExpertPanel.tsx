@@ -62,21 +62,29 @@ export const MosaicExpertPanel = () => {
             ))}
           </div>
 
-          {/* Поле ввода */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="relative flex gap-2">
-              <input
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleManualSubmit(); }}
-                placeholder="Задайте вопрос..."
-                className="w-full p-3 bg-gray-50 border rounded-xl text-black"
-              />
-              <button onClick={handleManualSubmit} className="bg-[#cc0000] text-white p-3 rounded-xl">
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
+         {/* Поле ввода */}
+<div className="p-4 border-t border-gray-100">
+  {/* Оборачиваем в тег form — это стандарт для useChat */}
+  <form 
+    onSubmit={handleSubmit} 
+    className="relative flex gap-2"
+  >
+    <input
+      value={input}
+      onChange={handleInputChange}
+      // Убираем onKeyDown, так как форма сама обработает Enter
+      placeholder="Задайте вопрос..."
+      className="w-full p-3 bg-gray-50 border rounded-xl text-black"
+    />
+    <button 
+      type="submit" // Делаем кнопку типом submit
+      disabled={isLoading || !input.trim()}
+      className="bg-[#cc0000] text-white p-3 rounded-xl disabled:bg-gray-400"
+    >
+      <ChevronRight size={20} />
+    </button>
+  </form>
+</div>
         </div>
       </div>
     </div>
