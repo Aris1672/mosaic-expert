@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 
-export function MosaicExpertPanel() {
+export default function MosaicExpertPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Это предотвращает ошибку "Hydration failed"
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -14,43 +13,29 @@ export function MosaicExpertPanel() {
   if (!mounted) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 10000 }}>
-      {!isOpen ? (
-        <button
-          onClick={() => setIsOpen(true)}
-          style={{
-            backgroundColor: '#cc0000',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '50px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-          }}
-        >
-          Чат с ИИ
-        </button>
-      ) : (
-        <div style={{
-          width: '320px',
-          height: '400px',
-          backgroundColor: 'white',
-          border: '1px solid #ddd',
-          borderRadius: '15px',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-          overflow: 'hidden'
+    <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999 }}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          backgroundColor: '#cc0000', 
+          color: 'white', 
+          padding: '10px 20px', 
+          borderRadius: '20px',
+          cursor: 'pointer'
+        }}
+      >
+        {isOpen ? 'Закрыть тест' : 'Нажми меня (Тест)'}
+      </button>
+
+      {isOpen && (
+        <div style={{ 
+          marginTop: '10px', 
+          padding: '20px', 
+          background: 'white', 
+          border: '2px solid red',
+          color: 'black' 
         }}>
-          <div style={{ backgroundColor: '#1a1a1a', color: 'white', padding: '15px', display: 'flex', justifyContent: 'space-between' }}>
-            <span>ИИ-Эксперт</span>
-            <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>✕</button>
-          </div>
-          <div style={{ flex: 1, padding: '15px', color: '#333' }}>
-            <p>Страница загружена успешно!</p>
-            <p style={{ fontSize: '12px', color: '#666' }}>Теперь мы знаем, что каркас сайта работает. Сейчас нужно будет установить библиотеки для ИИ.</p>
-          </div>
+          <p>Если вы видите это, значит базовый React в порядке!</p>
         </div>
       )}
     </div>
